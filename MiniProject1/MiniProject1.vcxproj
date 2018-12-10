@@ -10,6 +10,36 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="findgllib.mk" />
+    <None Include="Makefile" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="helper_cuda.h" />
+    <ClInclude Include="helper_functions.h" />
+    <ClInclude Include="helper_gl.h" />
+    <ClInclude Include="helper_image.h" />
+    <ClInclude Include="helper_math.h" />
+    <ClInclude Include="helper_string.h" />
+    <ClInclude Include="helper_timer.h" />
+    <ClInclude Include="param.h" />
+    <ClInclude Include="paramgl.h" />
+    <ClInclude Include="particleSystem.cuh" />
+    <ClInclude Include="particleSystem.h" />
+    <ClInclude Include="particles_kernel.cuh" />
+    <ClInclude Include="particles_kernel_impl.cuh" />
+    <ClInclude Include="render_particles.h" />
+    <ClInclude Include="shaders.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="particleSystem.cpp" />
+    <ClCompile Include="render_particles.cpp" />
+    <ClCompile Include="shaders.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="particleSystem_cuda.cu" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{AE8E0CFD-551F-4ED5-82F6-1BB0E21BF3BF}</ProjectGuid>
     <RootNamespace>MiniProject1</RootNamespace>
@@ -52,7 +82,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>cudart_static.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cudart_static.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
@@ -77,9 +107,6 @@
       <TargetMachinePlatform>64</TargetMachinePlatform>
     </CudaCompile>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <CudaCompile Include="kernel.cu" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 10.0.targets" />
