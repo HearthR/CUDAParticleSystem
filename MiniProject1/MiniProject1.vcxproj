@@ -15,6 +15,8 @@
     <None Include="Makefile" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="additional_shaders.h" />
+    <ClInclude Include="Bitmap.h" />
     <ClInclude Include="helper_cuda.h" />
     <ClInclude Include="helper_functions.h" />
     <ClInclude Include="helper_gl.h" />
@@ -30,8 +32,11 @@
     <ClInclude Include="particles_kernel_impl.cuh" />
     <ClInclude Include="render_particles.h" />
     <ClInclude Include="shaders.h" />
+    <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="additional_shaders.cpp" />
+    <ClCompile Include="Bitmap.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="particleSystem.cpp" />
     <ClCompile Include="render_particles.cpp" />

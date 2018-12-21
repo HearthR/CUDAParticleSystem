@@ -121,7 +121,7 @@ extern "C"
 
     void integrateSystem(float *pos,
                          float *vel,
-                         float deltaTime,
+                         float3 deltaTime,
                          uint numParticles)
     {
         thrust::device_ptr<float4> d_pos4((float4 *)pos);

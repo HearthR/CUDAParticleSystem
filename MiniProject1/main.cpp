@@ -13,11 +13,13 @@
 #include "particleSystem.h"
 #include "render_particles.h"
 #include "paramgl.h"
+#include "Bitmap.h"
+#include "additional_shaders.h"
 
 #define MAX_EPSILON_ERROR 5.00f
 #define THRESHOLD         0.30f
 #define GRID_SIZE       64
-#define NUM_PARTICLES   16384
+#define NUM_PARTICLES   5000
 
 //Global Variables
 const uint width = 640, height = 480;
@@ -65,6 +67,106 @@ unsigned int frameCount = 0;
 unsigned int g_TotalErrors = 0;
 const char *sSDKsample = "CUDA Particles Simulation";
 
+GLuint cubeMapId;
+GLuint skyVAO;
+GLuint skyVBO;
+GLuint skyShaderProgram;
+
+float3 mpath = {0.7f, 0.7f, 0.7f};
+int toggle_dt = 1;
+float rotate_path = 0.04;
+
+void CubeMapTexture()
+{
+	glActiveTexture(GL_TEXTURE0);
+	glGenTextures(1, &cubeMapId);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapId);
+
+	Bitmap bmp = Bitmap::bitmapFromFile("textures/right.jpg");
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0, 0, GL_RGB, bmp.width(), bmp.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, bmp.pixelBuffer());
+
+	bmp = Bitmap::bitmapFromFile("textures/left.jpg");
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1, 0, GL_RGB, bmp.width(), bmp.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, bmp.pixelBuffer());
+
+	bmp = Bitmap::bitmapFromFile("textures/top.jpg");
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2, 0, GL_RGB, bmp.width(), bmp.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, bmp.pixelBuffer());
+
+	bmp = Bitmap::bitmapFromFile("textures/bottom.jpg");
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3, 0, GL_RGB, bmp.width(), bmp.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, bmp.pixelBuffer());
+
+	bmp = Bitmap::bitmapFromFile("textures/front.jpg");
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4, 0, GL_RGB, bmp.width(), bmp.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, bmp.pixelBuffer());
+
+	bmp = Bitmap::bitmapFromFile("textures/back.jpg");
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, GL_RGB, bmp.width(), bmp.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, bmp.pixelBuffer());
+
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+}
+void SkyBoxDataTransfer()
+{
+
+	float skyboxVertices[] = {
+		// positions          
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		1.0f,  1.0f, -1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		1.0f, -1.0f,  1.0f
+	};
+
+	glGenVertexArrays(1, &skyVAO);
+	glGenBuffers(1, &skyVBO);
+	glBindVertexArray(skyVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+}
+
 //Functions
 extern "C" void cudaInit(int argc, char **argv);
 extern "C" void cudaGLInit(int argc, char **argv);
@@ -91,11 +193,40 @@ void cleanup(){
     }
     return;
 }
+void createProgram(){
+	GLuint skyVert = glCreateShader(GL_VERTEX_SHADER);
+	GLuint skyFrag = glCreateShader(GL_FRAGMENT_SHADER);
+
+	glShaderSource(skyVert, 1, &vertexSkybox, 0);
+	glShaderSource(skyFrag, 1, &fragSkybox, 0);
+
+	glCompileShader(skyVert);
+	glCompileShader(skyFrag);
+
+	skyShaderProgram = glCreateProgram();
+
+	glAttachShader(skyShaderProgram, skyVert);
+	glAttachShader(skyShaderProgram, skyFrag);
+
+	glLinkProgram(skyShaderProgram);
+
+	GLint success = 0;
+	glGetProgramiv(skyShaderProgram, GL_LINK_STATUS, &success);
+
+	if (!success)
+	{
+		char temp[256];
+		glGetProgramInfoLog(skyShaderProgram, 256, 0, temp);
+		printf("Failed to link program:\n%s\n", temp);
+		glDeleteProgram(skyShaderProgram);
+		skyShaderProgram = 0;
+	}
+}
 void initGL(int *argc, char **argv){
     glutInit(argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
     glutInitWindowSize(width, height);
-    glutCreateWindow("CUDA Particles");
+	glutCreateWindow("CUDA Particles");
 
     if (!isGLVersionSupported(2,0) ||
         !areGLExtensionsSupported("GL_ARB_multitexture GL_ARB_vertex_buffer_object"))
@@ -103,6 +234,9 @@ void initGL(int *argc, char **argv){
         fprintf(stderr, "Required OpenGL extensions missing.");
         exit(EXIT_FAILURE);
     }
+
+
+	createProgram();
 
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.25, 0.25, 0.25, 1.0);
@@ -127,6 +261,16 @@ void computeFPS(){
     }
 }
 void display(){
+	float* model = (float*)malloc(16 * sizeof(float));
+	float* view = (float*)malloc(16 * sizeof(float));
+	float* projection = (float*)malloc(16 * sizeof(float));
+
+
+	view[0] = 1.0;    view[1] = 0.0;    view[2] = 0.0;      view[3] = 0.0;
+	view[4] = 0.0;    view[5] = 1.0;    view[6] = 0.0;      view[7] = 0.0;
+	view[8] = 0.0;    view[9] = 0.0;    view[10] = 1.0;     view[11] = 0.0;
+	view[12] = 0.0f;   view[13] = 0.0;   view[14] = -10.0;     view[15] = 1.0;
+
     sdkStartTimer(&timer);
 
     // update the simulation
@@ -140,7 +284,32 @@ void display(){
         psystem->setCollideShear(collideShear);
         psystem->setCollideAttraction(collideAttraction);
 
-        psystem->update(timestep);
+		//rotate_path += 0.01;
+		float radian = rotate_path / 3.1415f;
+
+		float3 mpathp;
+		float mag;
+		mpathp.x = mpath.x;
+		mpathp.y = mpath.y;
+		mpathp.z = mpath.z;
+
+		mpath.x = mpathp.x * cosf(radian) + mpathp.z * sinf(radian);
+		mpath.z = mpathp.z * cosf(radian) - mpathp.x * sinf(radian);
+
+		mag = mpath.x * mpath.x + mpath.y * mpath.y + mpath.z * mpath.z;
+
+
+/*		if (toggle_dt == 1)
+		{
+			if (mpath > 1.5f) toggle_dt = 0;
+			mpath += 0.015f;
+		}
+		else
+		{
+			if (mpath < -1.5f) toggle_dt = 1;
+			mpath -= 0.015f;
+		}*/
+        psystem->update(mpath);
 
         if (renderer)
         {
@@ -166,23 +335,46 @@ void display(){
     glRotatef(camera_rot_lag[1], 0.0, 1.0, 0.0);
 
     glGetFloatv(GL_MODELVIEW_MATRIX, modelView);
+	glGetFloatv(GL_PROJECTION_MATRIX, projection);
 
     // cube
-    glColor3f(1.0, 1.0, 1.0);
-    glutWireCube(2.0);
+ //   glColor3f(1.0, 1.0, 1.0);
+//    glutWireCube(2.0);
+
+	glPushMatrix();
+	glPointSize(6);
+	glColor3f(1.0, 1.0, 1.0);
+	glBegin(GL_POINTS);
+	glVertex3f(mpath.x, mpath.y, mpath.z);
+	glEnd();
+	glPopMatrix();
 
     // collider
-    glPushMatrix();
+ /*   glPushMatrix();
     float3 p = psystem->getColliderPos();
     glTranslatef(p.x, p.y, p.z);
     glColor3f(1.0, 0.0, 0.0);
     glutSolidSphere(psystem->getColliderRadius(), 20, 10);
-    glPopMatrix();
+    glPopMatrix();*/
 
     if (renderer && displayEnabled)
     {
-        renderer->display(displayMode);
+        renderer->display(camera_trans_lag, cubeMapId, displayMode);
     }
+	
+	//Drawing Skybox
+	view[14] = 0.0;
+	glDepthFunc(GL_LEQUAL);
+	glUseProgram(skyShaderProgram);
+	glUniformMatrix4fv(glGetUniformLocation(skyShaderProgram, "view"), 1, GL_FALSE, &view[0]);
+	glUniformMatrix4fv(glGetUniformLocation(skyShaderProgram, "projection"), 1, GL_FALSE, &projection[0]);
+	glBindVertexArray(skyVAO);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapId);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+	glDepthFunc(GL_LESS);
+	glUseProgram(0);
 
     if (displaySliders)
     {
@@ -200,6 +392,9 @@ void display(){
     glutReportErrors();
 
     computeFPS();
+	free(model);
+	free(view);
+	free(projection);
 }
 inline float frand(){
     return rand() / (float) RAND_MAX;
@@ -376,7 +571,7 @@ void key(unsigned char key, int /*x*/, int /*y*/){
             break;
 
         case 13:
-            psystem->update(timestep);
+            psystem->update(mpath);
 
             if (renderer)
             {
@@ -536,6 +731,8 @@ int main(int argc, char **argv){
     initParticleSystem(numParticles, gridSize, true);
     initParams();
     initMenus();
+	CubeMapTexture();
+	SkyBoxDataTransfer();
 	//GLUT Functions
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);

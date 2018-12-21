@@ -32,7 +32,7 @@ class ParticleRenderer
             PARTICLE_NUM_MODES
         };
 
-        void display(DisplayMode mode = PARTICLE_POINTS);
+        void display(float* cameraPos, GLuint cubeMap, DisplayMode mode = PARTICLE_POINTS);
         void displayGrid();
 
         void setPointSize(float size)
@@ -71,6 +71,7 @@ class ParticleRenderer
 
         GLuint m_vbo;
         GLuint m_colorVBO;
+		GLuint cubeMapIdcu;
 };
 
 #endif //__ RENDER_PARTICLES__

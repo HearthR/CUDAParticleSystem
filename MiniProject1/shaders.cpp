@@ -13,6 +13,14 @@
 
 // vertex shader
 const char *vertexShader = STRINGIFY(
+//layout(location = 0) in vec3 aPos;
+//layout(location = 1) in vec3 aNormal;
+
+//out vec3 Normal;
+//out vec3 Position;
+
+//uniform mat4 model;
+//uniform mat4 projection;
                                uniform float pointRadius;  // point size in world space
                                uniform float pointScale;   // scale to calculate size in pixels
                                uniform float densityScale;
@@ -23,7 +31,8 @@ const char *vertexShader = STRINGIFY(
     vec3 posEye = vec3(gl_ModelViewMatrix * vec4(gl_Vertex.xyz, 1.0));
     float dist = length(posEye);
     gl_PointSize = pointRadius * (pointScale / dist);
-
+//	Normal = mat3(transpose(inverse(model))) * aNormal;
+//	Position = vec3(model * vec4(aPos, 1.0));
     gl_TexCoord[0] = gl_MultiTexCoord0;
     gl_Position = gl_ModelViewProjectionMatrix * vec4(gl_Vertex.xyz, 1.0);
 
@@ -33,6 +42,14 @@ const char *vertexShader = STRINGIFY(
 
 // pixel shader for rendering points as shaded spheres
 const char *spherePixelShader = STRINGIFY(
+//out vec4 FragColor;
+
+//in vec3 Normal;
+//in vec3 Position;
+
+//uniform vec3 cameraPos;
+//uniform samplerCube skybox;
+
                                     void main()
 {
     const vec3 lightDir = vec3(0.577, 0.577, 0.577);
@@ -48,7 +65,15 @@ const char *spherePixelShader = STRINGIFY(
 
     // calculate lighting
     float diffuse = max(0.0, dot(lightDir, N));
+//	vec3 I = normalize(Position - cameraPos);
+//	vec3 R = reflect(I, normalize(Normal));
+
+//	vec3 reflectRay = reflect(I, normalize(Normal));
+//	vec3 refractRay = refract(I, normalize(Normal), 0.65f);
+//	FragColor = vec4(texture(skybox, reflectRay).rgb, 1.0);
+
 
     gl_FragColor = gl_Color * diffuse;
 }
                                 );
+

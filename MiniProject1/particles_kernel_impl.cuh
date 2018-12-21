@@ -26,10 +26,10 @@ __constant__ SimParams params;
 
 struct integrate_functor
 {
-    float deltaTime;
+    float3 deltaTime;
 
     __host__ __device__
-    integrate_functor(float delta_time) : deltaTime(delta_time) {}
+    integrate_functor(float3 delta_time) : deltaTime(delta_time) {}
 
     template <typename Tuple>
     __device__
@@ -39,15 +39,29 @@ struct integrate_functor
         volatile float4 velData = thrust::get<1>(t);
         float3 pos = make_float3(posData.x, posData.y, posData.z);
         float3 vel = make_float3(velData.x, velData.y, velData.z);
+		
+		float3 radian = deltaTime - pos;
 
-        vel += params.gravity * deltaTime;
-        vel *= params.globalDamping;
+		//if (radian.x > 0.3 && radian.y > 0.3 && radian.z > 0.3)
+		//{
+			radian = radian / dot(radian, radian) * 0.005;
 
+			float3 tempg = params.gravity;
+
+			vel += radian * 0.5f;
+			if (vel.x > 0.05f || vel.x < -0.05f
+				|| vel.y > 0.05f || vel.y < -0.05f 
+				|| vel.z > 0.05f || vel.z < -0.05f)
+			{
+				vel = vel * 0.9;
+			}
+//			vel *= params.globalDamping;
+		//}
         // new position = old position + velocity * deltaTime
-        pos += vel * deltaTime;
+        pos += vel * 0.5f;
 
         // set this to zero to disable collisions with cube sides
-#if 1
+#if 0
 
         if (pos.x > 1.0f - params.particleRadius)
         {

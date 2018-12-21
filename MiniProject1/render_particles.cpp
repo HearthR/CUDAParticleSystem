@@ -42,6 +42,8 @@ void ParticleRenderer::_drawPoints(){
     }
     else
     {
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapIdcu);
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glVertexPointer(4, GL_FLOAT, 0, 0);
         glEnableClientState(GL_VERTEX_ARRAY);
@@ -56,7 +58,14 @@ void ParticleRenderer::_drawPoints(){
         glDisableClientState(GL_COLOR_ARRAY);
     }
 }
-void ParticleRenderer::display(DisplayMode mode ){
+void ParticleRenderer::display(float *cameraPos, GLuint cubeMap, DisplayMode mode){
+	float* model = (float*)malloc(16 * sizeof(float));
+	float* view = (float*)malloc(16 * sizeof(float));
+	float* projection = (float*)malloc(16 * sizeof(float));
+	cubeMapIdcu = cubeMap;
+
+	glGetFloatv(GL_MODELVIEW_MATRIX, model);
+	glGetFloatv(GL_PROJECTION_MATRIX, projection);
     switch (mode)
     {
         case PARTICLE_POINTS:
@@ -76,6 +85,10 @@ void ParticleRenderer::display(DisplayMode mode ){
             glUseProgram(m_program);
             glUniform1f(glGetUniformLocation(m_program, "pointScale"), m_window_h / tanf(m_fov*0.5f*(float)M_PI/180.0f));
             glUniform1f(glGetUniformLocation(m_program, "pointRadius"), m_particleRadius);
+//			glUniformMatrix4fv(glGetUniformLocation(m_program, "model"), 1, GL_FALSE, &model[0]);
+//			glUniformMatrix4fv(glGetUniformLocation(m_program, "view"), 1, GL_FALSE, &view[0]);
+//			glUniformMatrix4fv(glGetUniformLocation(m_program, "projection"), 1, GL_FALSE, &projection[0]);
+//			glUniform3f(glGetUniformLocation(m_program, "cameraPos"), (GLfloat)(cameraPos[0]), (GLfloat)(cameraPos[1]), (GLfloat)(cameraPos[2]));
 
             glColor3f(1, 1, 1);
             _drawPoints();
@@ -84,6 +97,10 @@ void ParticleRenderer::display(DisplayMode mode ){
             glDisable(GL_POINT_SPRITE_ARB);
             break;
     }
+
+	free(model);
+	free(view);
+	free(projection);
 }
 
 GLuint

@@ -28,7 +28,7 @@ class ParticleSystem
             VELOCITY,
         };
 
-        void update(float deltaTime);
+        void update(float3 deltaTime);
         void reset(ParticleConfig config);
 
         float *getArray(ParticleArray array);

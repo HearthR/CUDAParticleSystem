@@ -199,7 +199,7 @@ void ParticleSystem::_finalize(){
     }
 }
 // step the simulation
-void ParticleSystem::update(float deltaTime){
+void ParticleSystem::update(float3 deltaTime){
     assert(m_bInitialized);
 
     float *dPos;
@@ -246,7 +246,7 @@ void ParticleSystem::update(float deltaTime){
         m_dVel,
         m_numParticles,
         m_numGridCells);
-
+	/*
     // process collisions
     collide(
         m_dVel,
@@ -257,7 +257,7 @@ void ParticleSystem::update(float deltaTime){
         m_dCellEnd,
         m_numParticles,
         m_numGridCells);
-
+*/
     // note: do unmap at end here to avoid unnecessary graphics/CUDA context switch
     if (m_bUseOpenGL)
     {
