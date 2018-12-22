@@ -32,7 +32,7 @@ class ParticleRenderer
             PARTICLE_NUM_MODES
         };
 
-        void display(float* cameraPos, GLuint cubeMap, DisplayMode mode = PARTICLE_POINTS);
+        void display(float* cameraPos, GLuint cubeMap, GLuint smokeTex, DisplayMode mode = PARTICLE_POINTS);
         void displayGrid();
 
         void setPointSize(float size)
@@ -53,6 +53,11 @@ class ParticleRenderer
             m_window_h = h;
         }
 
+		GLuint getProgram()
+		{
+			return m_program;
+		}
+
     protected: // methods
         void _initGL();
         void _drawPoints();
@@ -72,6 +77,7 @@ class ParticleRenderer
         GLuint m_vbo;
         GLuint m_colorVBO;
 		GLuint cubeMapIdcu;
+		GLuint smokeId;
 };
 
 #endif //__ RENDER_PARTICLES__

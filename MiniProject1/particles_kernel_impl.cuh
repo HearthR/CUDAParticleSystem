@@ -44,21 +44,26 @@ struct integrate_functor
 
 		//if (radian.x > 0.3 && radian.y > 0.3 && radian.z > 0.3)
 		//{
-			radian = radian / dot(radian, radian) * 0.005;
+		//radian.x = sin(0.7)* radian.x;
+		//radian.y = cos(0.3) * radian.y;
+		//radian.z = radian.z;
+			radian = radian / dot(radian, radian) * 0.002f;
 
 			float3 tempg = params.gravity;
 
-			vel += radian * 0.5f;
-			if (vel.x > 0.05f || vel.x < -0.05f
-				|| vel.y > 0.05f || vel.y < -0.05f 
-				|| vel.z > 0.05f || vel.z < -0.05f)
-			{
-				vel = vel * 0.9;
-			}
-//			vel *= params.globalDamping;
+			vel += radian * 0.8f;
+			if (vel.x > 0.05f) vel.x = 0.05f;
+			if (vel.x < -0.05f) vel.x = -0.05f;
+			if (vel.y > 0.05f) vel.y = 0.05f;
+			if (vel.y < -0.05f) vel.y = -0.05f;
+			if (vel.z > 0.05f) vel.z = 0.05f;
+			if (vel.z < -0.05f) vel.z = -0.05f;
+
+			//vel *= params.globalDamping;
 		//}
         // new position = old position + velocity * deltaTime
-        pos += vel * 0.5f;
+		//vel += params.gravity * 0.5f;
+        pos += vel;
 
         // set this to zero to disable collisions with cube sides
 #if 0
@@ -93,14 +98,14 @@ struct integrate_functor
             vel.z *= params.boundaryDamping;
         }
 
-#endif
+
 
         if (pos.y < -1.0f + params.particleRadius)
         {
             pos.y = -1.0f + params.particleRadius;
             vel.y *= params.boundaryDamping;
         }
-
+#endif
         // store new position and velocity
         thrust::get<0>(t) = make_float4(pos, posData.w);
         thrust::get<1>(t) = make_float4(vel, velData.w);

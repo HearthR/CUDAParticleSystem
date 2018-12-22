@@ -222,7 +222,7 @@ void ParticleSystem::update(float3 deltaTime){
         m_dVel,
         deltaTime,
         m_numParticles);
-
+	
     // calculate grid hash
     calcHash(
         m_dGridParticleHash,
@@ -246,9 +246,9 @@ void ParticleSystem::update(float3 deltaTime){
         m_dVel,
         m_numParticles,
         m_numGridCells);
-	/*
+	
     // process collisions
-    collide(
+    /*collide(
         m_dVel,
         m_dSortedPos,
         m_dSortedVel,
@@ -256,8 +256,8 @@ void ParticleSystem::update(float3 deltaTime){
         m_dCellStart,
         m_dCellEnd,
         m_numParticles,
-        m_numGridCells);
-*/
+        m_numGridCells);*/
+
     // note: do unmap at end here to avoid unnecessary graphics/CUDA context switch
     if (m_bUseOpenGL)
     {
@@ -416,6 +416,24 @@ void ParticleSystem::reset(ParticleConfig config){
                 initGrid(gridSize, m_params.particleRadius*2.0f, jitter, m_numParticles);
             }
             break;
+
+		case CONFIG_EMMITION:
+			{
+				int p = 0, v = 0;
+					float point[3];
+					point[0] = frand()*0.01;
+					point[1] = frand()*0.01;
+					point[2] = frand()*0.01;
+					m_hPos[p++] = 2 * (point[0] - 0.5f);
+					m_hPos[p++] = 2 * (point[1] - 0.5f);
+					m_hPos[p++] = 2 * (point[2] - 0.5f);
+					m_hPos[p++] = 1.0f; // radius
+					m_hVel[v++] = 0.0f;
+					m_hVel[v++] = 0.0f;
+					m_hVel[v++] = 0.0f;
+					m_hVel[v++] = 0.0f;
+			}
+			break;
     }
 
     setArray(POSITION, m_hPos, 0, m_numParticles);

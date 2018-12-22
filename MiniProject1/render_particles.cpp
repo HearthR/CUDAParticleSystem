@@ -43,22 +43,25 @@ void ParticleRenderer::_drawPoints(){
     else
     {
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapIdcu);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapIdcu);
+		glUniform1i(glGetUniformLocation(m_program, "tex"), 0);
+		glBindTexture(GL_TEXTURE_2D, smokeId);
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glVertexPointer(4, GL_FLOAT, 0, 0);
         glEnableClientState(GL_VERTEX_ARRAY);
-        if (m_colorVBO){
+        /*if (m_colorVBO){
             glBindBuffer(GL_ARRAY_BUFFER, m_colorVBO);
             glColorPointer(4, GL_FLOAT, 0, 0);
             glEnableClientState(GL_COLOR_ARRAY);
-        }
+        }*/
         glDrawArrays(GL_POINTS, 0, m_numParticles);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
         glDisableClientState(GL_VERTEX_ARRAY);
-        glDisableClientState(GL_COLOR_ARRAY);
+        //glDisableClientState(GL_COLOR_ARRAY);
     }
 }
-void ParticleRenderer::display(float *cameraPos, GLuint cubeMap, DisplayMode mode){
+void ParticleRenderer::display(float *cameraPos, GLuint cubeMap, GLuint smokeTex, DisplayMode mode){
 	float* model = (float*)malloc(16 * sizeof(float));
 	float* view = (float*)malloc(16 * sizeof(float));
 	float* projection = (float*)malloc(16 * sizeof(float));
@@ -88,8 +91,7 @@ void ParticleRenderer::display(float *cameraPos, GLuint cubeMap, DisplayMode mod
 //			glUniformMatrix4fv(glGetUniformLocation(m_program, "model"), 1, GL_FALSE, &model[0]);
 //			glUniformMatrix4fv(glGetUniformLocation(m_program, "view"), 1, GL_FALSE, &view[0]);
 //			glUniformMatrix4fv(glGetUniformLocation(m_program, "projection"), 1, GL_FALSE, &projection[0]);
-//			glUniform3f(glGetUniformLocation(m_program, "cameraPos"), (GLfloat)(cameraPos[0]), (GLfloat)(cameraPos[1]), (GLfloat)(cameraPos[2]));
-
+			glUniform3f(glGetUniformLocation(m_program, "cameraPos"), (GLfloat)(cameraPos[0]), (GLfloat)(cameraPos[1]), (GLfloat)(cameraPos[2]));
             glColor3f(1, 1, 1);
             _drawPoints();
 

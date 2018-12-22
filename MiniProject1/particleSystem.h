@@ -19,6 +19,7 @@ class ParticleSystem
         {
             CONFIG_RANDOM,
             CONFIG_GRID,
+			CONFIG_EMMITION,
             _NUM_CONFIGS
         };
 

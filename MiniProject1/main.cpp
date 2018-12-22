@@ -19,7 +19,7 @@
 #define MAX_EPSILON_ERROR 5.00f
 #define THRESHOLD         0.30f
 #define GRID_SIZE       64
-#define NUM_PARTICLES   5000
+#define NUM_PARTICLES   450000
 
 //Global Variables
 const uint width = 640, height = 480;
@@ -72,9 +72,32 @@ GLuint skyVAO;
 GLuint skyVBO;
 GLuint skyShaderProgram;
 
-float3 mpath = {0.7f, 0.7f, 0.7f};
+float3 mpath = {0.8f, 0.8f, 0.8f};
 int toggle_dt = 1;
-float rotate_path = 0.04;
+float rotate_path = 0.045;
+
+GLuint smokeId;
+
+void SmokeTexture()
+{
+	glActiveTexture(GL_TEXTURE0);
+	glGenTextures(1, &smokeId);
+	glBindTexture(GL_TEXTURE_2D, smokeId);
+
+	const char path[] = "textures/smoke.jpg";
+	int n = sizeof(path) / sizeof(*path);
+	char* filePath = (char*)malloc(n * sizeof(char));
+	strcpy(filePath, path);
+
+	Bitmap bmp = Bitmap::bitmapFromFile(filePath);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bmp.width(), bmp.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, bmp.pixelBuffer());
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	//glUniform1i(glGetUniformLocation(renderer->getProgram(), "tex"), 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
 
 void CubeMapTexture()
 {
@@ -264,7 +287,9 @@ void display(){
 	float* model = (float*)malloc(16 * sizeof(float));
 	float* view = (float*)malloc(16 * sizeof(float));
 	float* projection = (float*)malloc(16 * sizeof(float));
-
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glEnable(GL_POINT_SPRITE_ARB);
+	glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
 
 	view[0] = 1.0;    view[1] = 0.0;    view[2] = 0.0;      view[3] = 0.0;
 	view[4] = 0.0;    view[5] = 1.0;    view[6] = 0.0;      view[7] = 0.0;
@@ -341,16 +366,16 @@ void display(){
  //   glColor3f(1.0, 1.0, 1.0);
 //    glutWireCube(2.0);
 
-	glPushMatrix();
+/*	glPushMatrix();
 	glPointSize(6);
 	glColor3f(1.0, 1.0, 1.0);
 	glBegin(GL_POINTS);
 	glVertex3f(mpath.x, mpath.y, mpath.z);
 	glEnd();
-	glPopMatrix();
+	glPopMatrix();*/
 
     // collider
- /*   glPushMatrix();
+    /*glPushMatrix();
     float3 p = psystem->getColliderPos();
     glTranslatef(p.x, p.y, p.z);
     glColor3f(1.0, 0.0, 0.0);
@@ -359,7 +384,7 @@ void display(){
 
     if (renderer && displayEnabled)
     {
-        renderer->display(camera_trans_lag, cubeMapId, displayMode);
+        renderer->display(camera_trans_lag, cubeMapId, smokeId, displayMode);
     }
 	
 	//Drawing Skybox
@@ -732,6 +757,7 @@ int main(int argc, char **argv){
     initParams();
     initMenus();
 	CubeMapTexture();
+	SmokeTexture();
 	SkyBoxDataTransfer();
 	//GLUT Functions
     glutDisplayFunc(display);

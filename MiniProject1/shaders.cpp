@@ -35,8 +35,10 @@ const char *vertexShader = STRINGIFY(
 //	Position = vec3(model * vec4(aPos, 1.0));
     gl_TexCoord[0] = gl_MultiTexCoord0;
     gl_Position = gl_ModelViewProjectionMatrix * vec4(gl_Vertex.xyz, 1.0);
+//	Position = vec3(vec4(gl_Vertex.xyz, 1.0));
 
-    gl_FrontColor = gl_Color;
+    //gl_FrontColor = gl_Color;
+	//gl_FrontColor = vec3(0.0, 0.0, 0.0);
 }
                            );
 
@@ -47,8 +49,10 @@ const char *spherePixelShader = STRINGIFY(
 //in vec3 Normal;
 //in vec3 Position;
 
-//uniform vec3 cameraPos;
-//uniform samplerCube skybox;
+uniform vec3 cameraPos;
+uniform samplerCube skybox;
+
+uniform sampler2D tex;
 
                                     void main()
 {
@@ -65,15 +69,20 @@ const char *spherePixelShader = STRINGIFY(
 
     // calculate lighting
     float diffuse = max(0.0, dot(lightDir, N));
-//	vec3 I = normalize(Position - cameraPos);
-//	vec3 R = reflect(I, normalize(Normal));
+	vec3 I = normalize(gl_FragCoord.xyz - cameraPos);
 
-//	vec3 reflectRay = reflect(I, normalize(Normal));
-//	vec3 refractRay = refract(I, normalize(Normal), 0.65f);
-//	FragColor = vec4(texture(skybox, reflectRay).rgb, 1.0);
+	//vec2 texCoord = gl_TexCoord[0].st;
+	//vec3 color = texture2D(tex, texCoord).rgb;
+	//if (length(color) < 0.01f) discard;
+	//gl_FragColor = vec4(color, 1.0f);
+
+	vec3 reflectRay = reflect(I, normalize(N));
+	//vec3 refractRay = refract(I, normalize(N), 0.65f);
+	gl_FragColor = vec4(texture(skybox, reflectRay).rgb, 1.0);
 
 
-    gl_FragColor = gl_Color * diffuse;
+//    gl_FragColor = gl_Color * diffuse;
+//	gl_FragColor = vec4(0.8, 0.8, 0.8, 1.0) * diffuse;
 }
                                 );
 

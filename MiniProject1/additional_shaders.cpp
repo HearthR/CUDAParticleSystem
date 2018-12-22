@@ -1,5 +1,5 @@
 #define STRINGIFY(A) #A
-
+/*
 const char *vertexObj = STRINGIFY(
 #version 130
 layout(location = 0) in vec3 aPos;
@@ -36,7 +36,7 @@ void main()
 }
 
 );
-
+*/
 const char *vertexSkybox = STRINGIFY(
 	#version 410\n
 
