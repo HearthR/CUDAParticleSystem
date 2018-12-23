@@ -18,6 +18,7 @@ const char *vertexShader = STRINGIFY(
 
 //out vec3 Normal;
 varying vec3 Position;
+varying vec3 camera;
 
 uniform mat4 model;
 //uniform mat4 projection;
@@ -32,6 +33,11 @@ uniform mat4 model;
     float dist = length(posEye);
     gl_PointSize = pointRadius * (pointScale / dist);
 //	Normal = mat3(transpose(inverse(model))) * aNormal;
+	mat3 rotMat = mat3(gl_ModelViewMatrix);
+	vec3 d = vec3(gl_ModelViewMatrix[3]);
+
+	camera = -d * rotMat;
+
 	Position = vec3(model * vec4(gl_Vertex.xyz, 1.0));
     gl_TexCoord[0] = gl_MultiTexCoord0;
     gl_Position = gl_ModelViewProjectionMatrix * vec4(gl_Vertex.xyz, 1.0);
@@ -48,15 +54,13 @@ const char *spherePixelShader = STRINGIFY(
 
 //in vec3 Normal;
 varying vec3 Position;
+varying vec3 camera;
 
-uniform vec3 cameraPos;
 uniform samplerCube skybox;
-
-uniform sampler2D tex;
 
                                     void main()
 {
-    const vec3 lightDir = vec3(0.577, 0.577, 0.577);
+   // const vec3 lightDir = vec3(0.577, 0.577, 0.577);
 
     // calculate normal from texture coordinates
     vec3 N;
@@ -68,9 +72,8 @@ uniform sampler2D tex;
     N.z = sqrt(1.0-mag);
 
     // calculate lighting
-    float diffuse = max(0.0, dot(lightDir, N));
-	//vec3 I = normalize(gl_FragCoord.xyz - cameraPos);
-	vec3 I = normalize(Position - cameraPos);
+    //float diffuse = max(0.0, dot(lightDir, N));
+	vec3 I = normalize(Position - camera);
 
 	//vec2 texCoord = gl_TexCoord[0].st;
 	//vec3 color = texture2D(tex, texCoord).rgb;
@@ -80,10 +83,6 @@ uniform sampler2D tex;
 	vec3 reflectRay = reflect(I, normalize(N));
 	vec3 refractRay = refract(I, normalize(N), 0.65f);
 	gl_FragColor = vec4(texture(skybox, reflectRay).rgb, 1.0);
-
-
-//    gl_FragColor = gl_Color * diffuse;
-//	gl_FragColor = vec4(0.8, 0.8, 0.8, 1.0) * diffuse;
 }
                                 );
 

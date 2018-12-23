@@ -361,18 +361,12 @@ void display(){
 
     glGetFloatv(GL_MODELVIEW_MATRIX, modelView);
 	glGetFloatv(GL_PROJECTION_MATRIX, projection);
+	printf("camera: %f\t%f\t%f\n", camera_rot_lag[0], camera_rot_lag[1], camera_rot_lag[2]);
 
     // cube
  //   glColor3f(1.0, 1.0, 1.0);
 //    glutWireCube(2.0);
 
-/*	glPushMatrix();
-	glPointSize(6);
-	glColor3f(1.0, 1.0, 1.0);
-	glBegin(GL_POINTS);
-	glVertex3f(mpath.x, mpath.y, mpath.z);
-	glEnd();
-	glPopMatrix();*/
 
     // collider
     /*glPushMatrix();
@@ -381,6 +375,8 @@ void display(){
     glColor3f(1.0, 0.0, 0.0);
     glutSolidSphere(psystem->getColliderRadius(), 20, 10);
     glPopMatrix();*/
+
+	
 
     if (renderer && displayEnabled)
     {

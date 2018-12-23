@@ -43,9 +43,7 @@ void ParticleRenderer::_drawPoints(){
     else
     {
 		glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapIdcu);
-		glUniform1i(glGetUniformLocation(m_program, "tex"), 0);
-		glBindTexture(GL_TEXTURE_2D, smokeId);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapIdcu);
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glVertexPointer(4, GL_FLOAT, 0, 0);
         glEnableClientState(GL_VERTEX_ARRAY);
@@ -68,7 +66,6 @@ void ParticleRenderer::display(float *cameraPos, GLuint cubeMap, GLuint smokeTex
 	cubeMapIdcu = cubeMap;
 
 	glGetFloatv(GL_MODELVIEW_MATRIX, model);
-	glGetFloatv(GL_PROJECTION_MATRIX, projection);
     switch (mode)
     {
         case PARTICLE_POINTS:
