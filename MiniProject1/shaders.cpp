@@ -17,9 +17,9 @@ const char *vertexShader = STRINGIFY(
 //layout(location = 1) in vec3 aNormal;
 
 //out vec3 Normal;
-//out vec3 Position;
+varying vec3 Position;
 
-//uniform mat4 model;
+uniform mat4 model;
 //uniform mat4 projection;
                                uniform float pointRadius;  // point size in world space
                                uniform float pointScale;   // scale to calculate size in pixels
@@ -32,7 +32,7 @@ const char *vertexShader = STRINGIFY(
     float dist = length(posEye);
     gl_PointSize = pointRadius * (pointScale / dist);
 //	Normal = mat3(transpose(inverse(model))) * aNormal;
-//	Position = vec3(model * vec4(aPos, 1.0));
+	Position = vec3(model * vec4(gl_Vertex.xyz, 1.0));
     gl_TexCoord[0] = gl_MultiTexCoord0;
     gl_Position = gl_ModelViewProjectionMatrix * vec4(gl_Vertex.xyz, 1.0);
 //	Position = vec3(vec4(gl_Vertex.xyz, 1.0));
@@ -47,7 +47,7 @@ const char *spherePixelShader = STRINGIFY(
 //out vec4 FragColor;
 
 //in vec3 Normal;
-//in vec3 Position;
+varying vec3 Position;
 
 uniform vec3 cameraPos;
 uniform samplerCube skybox;
@@ -69,7 +69,8 @@ uniform sampler2D tex;
 
     // calculate lighting
     float diffuse = max(0.0, dot(lightDir, N));
-	vec3 I = normalize(gl_FragCoord.xyz - cameraPos);
+	//vec3 I = normalize(gl_FragCoord.xyz - cameraPos);
+	vec3 I = normalize(Position - cameraPos);
 
 	//vec2 texCoord = gl_TexCoord[0].st;
 	//vec3 color = texture2D(tex, texCoord).rgb;
@@ -77,7 +78,7 @@ uniform sampler2D tex;
 	//gl_FragColor = vec4(color, 1.0f);
 
 	vec3 reflectRay = reflect(I, normalize(N));
-	//vec3 refractRay = refract(I, normalize(N), 0.65f);
+	vec3 refractRay = refract(I, normalize(N), 0.65f);
 	gl_FragColor = vec4(texture(skybox, reflectRay).rgb, 1.0);
 
 

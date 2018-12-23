@@ -88,7 +88,7 @@ void ParticleRenderer::display(float *cameraPos, GLuint cubeMap, GLuint smokeTex
             glUseProgram(m_program);
             glUniform1f(glGetUniformLocation(m_program, "pointScale"), m_window_h / tanf(m_fov*0.5f*(float)M_PI/180.0f));
             glUniform1f(glGetUniformLocation(m_program, "pointRadius"), m_particleRadius);
-//			glUniformMatrix4fv(glGetUniformLocation(m_program, "model"), 1, GL_FALSE, &model[0]);
+			glUniformMatrix4fv(glGetUniformLocation(m_program, "model"), 1, GL_FALSE, &model[0]);
 //			glUniformMatrix4fv(glGetUniformLocation(m_program, "view"), 1, GL_FALSE, &view[0]);
 //			glUniformMatrix4fv(glGetUniformLocation(m_program, "projection"), 1, GL_FALSE, &projection[0]);
 			glUniform3f(glGetUniformLocation(m_program, "cameraPos"), (GLfloat)(cameraPos[0]), (GLfloat)(cameraPos[1]), (GLfloat)(cameraPos[2]));
